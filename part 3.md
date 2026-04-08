@@ -4,14 +4,12 @@ Assumptions:
 Each product has at least one supplier
 Low stock threshold is stored in product
 
-@GetMapping("/api/companies/{companyId}/alerts/low-stock")
+ @GetMapping("/api/companies/{companyId}/alerts/low-stock")
 public ResponseEntity<?> getLowStockAlerts(@PathVariable Long companyId) {
-
     List<Map<String, Object>> alerts = new ArrayList<>();
     List<Warehouse> warehouses = warehouseRepository.findByCompanyId(companyId);
     for (Warehouse warehouse : warehouses) {
         List<Inventory> inventoryList = inventoryRepository.findByWarehouseId(warehouse.getId());
-
         for (Inventory inv : inventoryList) {
             Product product = inv.getProduct();
             int currentStock = inv.getQuantity();
@@ -21,10 +19,7 @@ public ResponseEntity<?> getLowStockAlerts(@PathVariable Long companyId) {
                     LocalDateTime.now().minusDays(30)
             )
             if (currentStock < threshold && recentSales > 0) {
-
-               
                 Supplier supplier = supplierRepository.findFirstByProductId(product.getId());
-
                 Map<String, Object> alert = new HashMap<>();
                 alert.put("product_id", product.getId());
                 alert.put("product_name", product.getName());
@@ -34,16 +29,13 @@ public ResponseEntity<?> getLowStockAlerts(@PathVariable Long companyId) {
                 alert.put("current_stock", currentStock);
                 alert.put("threshold", threshold);
                 alert.put("days_until_stockout", 10);
-
                 Map<String, Object> supplierMap = new HashMap<>();
                 if (supplier != null) {
                     supplierMap.put("id", supplier.getId());
                     supplierMap.put("name", supplier.getName());
                     supplierMap.put("contact_email", supplier.getContactEmail());
                 }
-
                 alert.put("supplier", supplierMap);
-
                 alerts.add(alert);
             }
         }
@@ -51,7 +43,6 @@ public ResponseEntity<?> getLowStockAlerts(@PathVariable Long companyId) {
     Map<String, Object> response = new HashMap<>();
     response.put("alerts", alerts);
     response.put("total_alerts", alerts.size());
-
     return ResponseEntity.ok(response);
 }
 
